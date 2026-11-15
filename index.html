@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download exolife — Junior Astronaut Mission Trainer</title>
+<meta name="description" content="exolife by Team Stratix. Learn to live on the Moon. Free for Windows and Mac.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #151623; --deep: #0d0e17; --panel: #1e1f2f; --line: #2e3046;
+    --white: #fff; --soft: #c9cad6; --muted: #7d7f96; --orange: #f37420; --gold: #eed591;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body {
+    background: radial-gradient(1200px 700px at 85% 110%, rgba(243,116,32,.18), transparent 60%),
+                radial-gradient(900px 600px at 0% 0%, rgba(0,0,0,.35), transparent 60%), var(--bg);
+    color: var(--white); font-family: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    padding: 48px 24px 32px; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  main { position: relative; z-index: 1; width: 100%; max-width: 760px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; letter-spacing: .22em; text-transform: uppercase; }
+  .kicker { color: var(--orange); font-size: 12px; font-weight: 600; margin-bottom: 28px; }
+  .logo { width: min(380px, 78vw); height: auto; display: block; margin: 0 auto; }
+  h1 { font-size: clamp(22px, 3.4vw, 30px); font-weight: 400; color: var(--soft); margin: 18px 0 44px; }
+  .choose { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+  .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .btn {
+    position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px;
+    padding: 30px 20px 26px; border-radius: 22px; border: 1px solid var(--line);
+    background: rgba(30,31,47,.72); color: var(--white); text-decoration: none; cursor: pointer;
+    font: inherit; transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    backdrop-filter: blur(8px);
+  }
+  .btn:hover, .btn:focus-visible { transform: translateY(-3px); border-color: var(--orange); outline: none; }
+  .btn svg { width: 40px; height: 40px; }
+  .btn .name { font-size: 24px; font-weight: 700; }
+  .btn .meta { font-size: 11px; color: var(--muted); }
+  .btn.recommended { border-color: var(--orange); background: linear-gradient(180deg, rgba(243,116,32,.16), rgba(30,31,47,.72)); }
+  .tag { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: var(--orange); color: var(--deep);
+         font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; display: none; }
+  .btn.recommended .tag { display: block; }
+
+  .panel { display: none; margin-top: 36px; text-align: left; background: rgba(30,31,47,.72); border: 1px solid var(--line);
+           border-radius: 22px; padding: 26px 28px; }
+  .panel.show { display: block; animation: rise .4s ease; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .panel h2 { font-size: 22px; margin-bottom: 6px; }
+  .panel p { color: var(--soft); font-size: 15px; line-height: 1.55; }
+  .panel ol { margin: 16px 0 0 20px; color: var(--soft); font-size: 15px; line-height: 1.7; }
+  .panel b { color: var(--white); }
+  .panel code { font-family: "JetBrains Mono", monospace; font-size: 13px; background: var(--deep); padding: 2px 6px; border-radius: 6px; color: var(--gold); }
+  .panel a { color: var(--orange); }
+
+  .btn.selected { border-color: var(--white); background: rgba(255,255,255,.07); }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .step-k { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .steps-title { margin-top: 22px; }
+  .panel ol { margin-top: 8px; }
+  .dl { display: inline-flex; align-items: center; gap: 10px; font: inherit; font-size: 17px; font-weight: 700;
+        padding: 14px 26px; border-radius: 999px; border: 0; background: var(--orange); color: var(--deep); cursor: pointer;
+        transition: transform .15s ease, filter .15s ease; }
+  .dl:hover { transform: translateY(-2px); filter: brightness(1.08); }
+  .dl svg { width: 20px; height: 20px; }
+  .dl.done { background: var(--panel); color: var(--white); box-shadow: inset 0 0 0 1px var(--line); }
+  .status { min-height: 0; margin-top: 0; font-size: 14px; color: var(--gold); }
+  .status:not(:empty) { margin-top: 14px; }
+
+  /* phone view */
+  .phone { display: none; }
+  body.is-phone .phone { display: block; }
+  body.is-phone .desktop-only { display: none; }
+  .phone .card { background: rgba(30,31,47,.72); border: 1px solid var(--line); border-radius: 22px; padding: 26px 22px; }
+  .phone p { color: var(--soft); font-size: 16px; line-height: 1.55; }
+  .url { margin: 18px 0; font-family: "JetBrains Mono", monospace; font-size: 15px; color: var(--gold); word-break: break-all; }
+  .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .small-btn { font: inherit; font-size: 15px; font-weight: 600; padding: 12px 20px; border-radius: 999px; border: 1px solid var(--line);
+               background: var(--panel); color: var(--white); cursor: pointer; }
+  .small-btn.primary { background: var(--orange); border-color: var(--orange); color: var(--deep); }
+  .link-alt { margin-top: 18px; font-size: 13px; color: var(--muted); }
+  .link-alt a { color: var(--muted); }
+
+  footer { position: relative; z-index: 1; margin-top: 48px; font-size: 11px; color: var(--muted); text-align: center; line-height: 2; }
+  @media (max-width: 560px) { .buttons { grid-template-columns: 1fr; } body { padding-top: 36px; } }
+</style>
+</head>
+<body>
+<canvas class="stars" id="stars" aria-hidden="true"></canvas>
+
+<main>
+  <div class="kicker mono">NASA Space Apps Challenge 2026</div>
+  <img class="logo" src="exolife.svg" alt="exolife">
+  <h1>Learn to live on the Moon.</h1>
+
+  <!-- LAPTOP / DESKTOP VIEW -->
+  <section class="desktop-only">
+    <div class="choose mono">Choose your computer</div>
+    <div class="buttons">
+      <button class="btn" id="btn-win" data-os="win" type="button">
+        <span class="tag mono">Your computer</span>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5 10.5 4.4v7.1H3V5.5Zm0 13 7.5 1.1v-7H3v5.9Zm8.4 1.2L21 21v-8.4h-9.6v7.1Zm0-15.4v7.2H21V3l-9.6 1.3Z"/></svg>
+        <span class="name">Windows</span>
+        <span class="meta mono">Windows 10 / 11</span>
+      </button>
+      <button class="btn" id="btn-mac" data-os="mac" type="button">
+        <span class="tag mono">Your computer</span>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.8 1.3 10.3.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.2ZM13.9 4.9c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5Z"/></svg>
+        <span class="name">Mac</span>
+        <span class="meta mono">macOS</span>
+      </button>
+    </div>
+
+    <div class="panel" id="panel-win">
+      <div class="panel-head">
+        <div>
+          <div class="mono step-k">Windows 10 / 11</div>
+          <h2>exolife for Windows</h2>
+        </div>
+        <button class="dl" type="button" data-dl="win">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14"/></svg>
+          <span>Download</span>
+        </button>
+      </div>
+      <p class="status" id="status-win" aria-live="polite"></p>
+      <div class="mono step-k steps-title">After downloading</div>
+      <ol>
+        <li>Open your <b>Downloads</b> folder and <b>right-click the zip → Extract All</b>.</li>
+        <li>Open the extracted folder and double-click <b>exolife.exe</b>.</li>
+        <li>If Windows shows a blue <b>“Windows protected your PC”</b> box, click <b>More info → Run anyway</b>. That's normal for a brand-new hackathon app.</li>
+      </ol>
+    </div>
+
+    <div class="panel" id="panel-mac">
+      <div class="panel-head">
+        <div>
+          <div class="mono step-k">macOS</div>
+          <h2>exolife for Mac</h2>
+        </div>
+        <button class="dl" type="button" data-dl="mac">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14"/></svg>
+          <span>Download</span>
+        </button>
+      </div>
+      <p class="status" id="status-mac" aria-live="polite"></p>
+      <div class="mono step-k steps-title">After downloading</div>
+      <ol>
+        <li>Open your <b>Downloads</b> folder and double-click the zip to unzip it.</li>
+        <li>Drag <b>exolife</b> into <b>Applications</b> (optional), then <b>right-click it → Open → Open</b>.</li>
+        <li>If macOS says it can't be opened, go to <b>System Settings → Privacy &amp; Security</b>, scroll down and click <b>Open Anyway</b>.</li>
+        <li>If it says the app is <b>“damaged”</b>, open Terminal and run <code>xattr -cr /Applications/exolife.app</code>, then open it again.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- PHONE VIEW -->
+  <section class="phone">
+    <div class="card">
+      <p><b>exolife runs on laptops.</b><br>Open this link on your Windows or Mac computer to download it:</p>
+      <div class="url" id="page-url"></div>
+      <div class="row">
+        <button class="small-btn primary" id="share" type="button">Send to myself</button>
+        <button class="small-btn" id="copy" type="button">Copy link</button>
+      </div>
+    </div>
+    <div class="link-alt">On a laptop already? <a href="#" id="force-desktop">Show downloads</a></div>
+  </section>
+</main>
+
+<footer class="mono">Team Stratix · NASA Space Apps 2026<br>Free · Made for junior astronauts</footer>
+
+<script>
+  // ============ EDIT THESE TWO LINKS ============
+  const DOWNLOADS = {
+    win: "https://github.com/YOUR-USERNAME/exolife/releases/latest/download/exolife-windows.zip",
+    mac: "https://github.com/YOUR-USERNAME/exolife/releases/latest/download/exolife-mac.zip",
+  };
+  // ==============================================
+
+  const ua = navigator.userAgent || "";
+  const isPhone = /iPhone|iPod|Android.*Mobile|Windows Phone/i.test(ua) ||
+                  (/Android/i.test(ua)) ||
+                  (/iPad/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)); // iPad pretends to be a Mac
+  const isMac = /Macintosh|Mac OS X/i.test(ua) && !isPhone;
+  const isWin = /Windows/i.test(ua) && !isPhone;
+
+  if (isPhone) document.body.classList.add("is-phone");
+  if (isMac) document.getElementById("btn-mac").classList.add("recommended");
+  if (isWin) document.getElementById("btn-win").classList.add("recommended");
+
+  // 1) Picking Windows or Mac only shows that panel. Nothing downloads yet.
+  function choose(os) {
+    document.querySelectorAll(".btn[data-os]").forEach(b => b.classList.toggle("selected", b.dataset.os === os));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("show"));
+    const panel = document.getElementById("panel-" + os);
+    panel.classList.add("show");
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  // 2) The Download button starts the file in a hidden frame, so the visitor never leaves this page.
+  let frame;
+  function download(os, btn) {
+    if (!frame) { frame = document.createElement("iframe"); frame.style.display = "none"; frame.title = "download"; document.body.appendChild(frame); }
+    frame.src = DOWNLOADS[os];
+    btn.classList.add("done");
+    btn.querySelector("span").textContent = "Downloading…";
+    setTimeout(() => { btn.querySelector("span").textContent = "Download again"; }, 4000);
+    const st = document.getElementById("status-" + os);
+    st.innerHTML = 'Check your Downloads folder, then follow the steps below. Nothing happened? <a href="' + DOWNLOADS[os] + '" target="_blank" rel="noopener">Use this direct link</a>.';
+  }
+
+  document.querySelectorAll(".btn[data-os]").forEach(b => b.addEventListener("click", () => choose(b.dataset.os)));
+  document.querySelectorAll("[data-dl]").forEach(b => b.addEventListener("click", () => download(b.dataset.dl, b)));
+
+  // Phone helpers
+  const url = location.href.split("#")[0];
+  document.getElementById("page-url").textContent = url.replace(/^https?:\/\//, "");
+  document.getElementById("share").addEventListener("click", async () => {
+    if (navigator.share) { try { await navigator.share({ title: "exolife", text: "Download exolife on my laptop", url }); } catch (e) {} }
+    else { location.href = "mailto:?subject=" + encodeURIComponent("exolife download") + "&body=" + encodeURIComponent(url); }
+  });
+  document.getElementById("copy").addEventListener("click", async e => {
+    try { await navigator.clipboard.writeText(url); e.target.textContent = "Copied ✓"; } catch (err) { e.target.textContent = "Copy failed"; }
+  });
+  document.getElementById("force-desktop").addEventListener("click", e => { e.preventDefault(); document.body.classList.remove("is-phone"); });
+
+  // Starfield
+  const c = document.getElementById("stars"), x = c.getContext("2d");
+  let stars = [];
+  function resize() {
+    const d = window.devicePixelRatio || 1;
+    c.width = innerWidth * d; c.height = innerHeight * d; c.style.width = innerWidth + "px"; c.style.height = innerHeight + "px";
+    x.setTransform(d, 0, 0, d, 0, 0);
+    stars = Array.from({ length: Math.round(innerWidth * innerHeight / 6000) }, () => ({
+      x: Math.random() * innerWidth, y: Math.random() * innerHeight, r: Math.random() * 1.2 + .3, p: Math.random() * 6.28, s: Math.random() * .02 + .005,
+    }));
+  }
+  function draw() {
+    x.clearRect(0, 0, innerWidth, innerHeight);
+    for (const s of stars) { s.p += s.s; x.globalAlpha = .25 + .45 * (Math.sin(s.p) + 1) / 2; x.beginPath(); x.arc(s.x, s.y, s.r, 0, 6.28); x.fillStyle = "#fff"; x.fill(); }
+    if (animate) requestAnimationFrame(draw);
+  }
+  const animate = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  addEventListener("resize", () => { resize(); if (!animate) draw(); }); resize(); draw();
+</script>
+</body>
+</html>
