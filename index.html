@@ -3,77 +3,193 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Download exolife — Junior Astronaut Mission Trainer</title>
-<meta name="description" content="exolife by Team Stratix. Learn to live on the Moon. Free for Windows and Mac.">
+<title>exolife — Learn to live on the Moon</title>
+<meta name="description" content="exolife by Team Stratix: a Junior Astronaut Mission Trainer for NASA Space Apps 2026. Free for Windows and Mac.">
+<meta property="og:title" content="exolife — Learn to live on the Moon">
+<meta property="og:description" content="A mission trainer for junior astronauts. Free for Windows and Mac.">
+<meta property="og:image" content="img/title.jpg">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #151623; --deep: #0d0e17; --panel: #1e1f2f; --line: #2e3046;
-    --white: #fff; --soft: #c9cad6; --muted: #7d7f96; --orange: #f37420; --gold: #eed591;
+    --bg: #151623; --deep: #0d0e17; --panel: #1e1f2f; --line: #2e3046; --orbit: #34364f;
+    --white: #fff; --soft: #c9cad6; --muted: #7d7f96; --orange: #f37420; --gold: #eed591; --green: #74c27a;
+    --pad: clamp(24px, 6vw, 96px);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { min-height: 100%; }
+  html { scroll-behavior: smooth; }
   body {
-    background: radial-gradient(1200px 700px at 85% 110%, rgba(243,116,32,.18), transparent 60%),
-                radial-gradient(900px 600px at 0% 0%, rgba(0,0,0,.35), transparent 60%), var(--bg);
-    color: var(--white); font-family: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
-    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-    padding: 48px 24px 32px; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    background: var(--bg); color: var(--white);
+    font-family: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
-  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-  main { position: relative; z-index: 1; width: 100%; max-width: 760px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  img { display: block; max-width: 100%; }
   .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; letter-spacing: .22em; text-transform: uppercase; }
-  .kicker { color: var(--orange); font-size: 12px; font-weight: 600; margin-bottom: 28px; }
-  .logo { width: min(380px, 78vw); height: auto; display: block; margin: 0 auto; }
-  h1 { font-size: clamp(22px, 3.4vw, 30px); font-weight: 400; color: var(--soft); margin: 18px 0 44px; }
-  .choose { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
-  .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .btn {
-    position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px;
-    padding: 30px 20px 26px; border-radius: 22px; border: 1px solid var(--line);
-    background: rgba(30,31,47,.72); color: var(--white); text-decoration: none; cursor: pointer;
-    font: inherit; transition: transform .2s ease, border-color .2s ease, background .2s ease;
-    backdrop-filter: blur(8px);
-  }
+  .kicker { color: var(--orange); font-size: 12px; font-weight: 600; margin-bottom: 22px; }
+  h2.head { font-size: clamp(36px, 5.6vw, 72px); line-height: 1.05; font-weight: 700; letter-spacing: -.02em; }
+  .sub { font-size: clamp(18px, 2vw, 24px); line-height: 1.45; color: var(--soft); margin-top: 22px; max-width: 34ch; }
+  .orange { color: var(--orange); } .gold { color: var(--gold); }
+
+  /* ---------- fixed background ---------- */
+  .stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .bg-glow { position: fixed; z-index: 0; pointer-events: none; width: 70vmax; height: 70vmax; border-radius: 50%;
+             right: -25vmax; bottom: -35vmax; background: radial-gradient(circle, rgba(243,116,32,.20), transparent 62%); }
+
+  /* ---------- nav ---------- */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between;
+        padding: 18px var(--pad); transition: background .3s ease, backdrop-filter .3s ease, border-color .3s ease;
+        border-bottom: 1px solid transparent; }
+  nav.scrolled { background: rgba(21,22,35,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-color: rgba(255,255,255,.06); }
+  nav .nav-logo { width: 104px; opacity: 0; transform: translateY(-6px); transition: opacity .3s ease, transform .3s ease; }
+  nav.scrolled .nav-logo { opacity: 1; transform: none; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 14px; font-weight: 700; text-decoration: none;
+          padding: 10px 18px; border-radius: 999px; background: var(--orange); color: var(--deep); border: 0; cursor: pointer;
+          transition: transform .15s ease, filter .15s ease; }
+  .pill:hover { transform: translateY(-1px); filter: brightness(1.08); }
+  .pill.ghost { background: transparent; color: var(--white); box-shadow: inset 0 0 0 1px var(--line); }
+
+  /* ---------- sections ---------- */
+  section { position: relative; z-index: 1; min-height: 100vh; padding: 120px var(--pad); display: flex; align-items: center; }
+  .wrap { width: 100%; max-width: 1180px; margin: 0 auto; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 5vw, 80px); align-items: center; }
+  .split.wide-right { grid-template-columns: 5fr 7fr; }
+  .split.wide-left { grid-template-columns: 7fr 5fr; }
+  .center { text-align: center; }
+  .center .sub { margin-left: auto; margin-right: auto; }
+  .orbits { position: absolute; pointer-events: none; border-radius: 50%; border: 1px solid var(--orbit); }
+
+  /* reveal on scroll */
+  .r { opacity: 0; transform: translateY(28px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
+  .in .r, .r.in { opacity: 1; transform: none; }
+  .in .d1 { transition-delay: .08s; } .in .d2 { transition-delay: .16s; } .in .d3 { transition-delay: .24s; }
+  .in .d4 { transition-delay: .32s; } .in .d5 { transition-delay: .40s; } .in .d6 { transition-delay: .48s; }
+
+  /* screenshots */
+  .shot { position: relative; border-radius: clamp(12px, 1.6vw, 22px); overflow: hidden; border: 1px solid rgba(255,255,255,.12);
+          box-shadow: 0 40px 120px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.4); }
+  .shot img { width: 100%; height: auto; }
+  .shot-glow { position: absolute; inset: -20%; z-index: -1; background: radial-gradient(circle, rgba(243,116,32,.28), transparent 60%); }
+  .shot-box { position: relative; isolation: isolate; }
+
+  /* ---------- HERO ---------- */
+  #hero { flex-direction: column; justify-content: center; text-align: center; }
+  #hero .glow { position: absolute; width: 60vmin; height: 60vmin; top: 8%; left: 50%; transform: translateX(-50%); border-radius: 50%;
+                background: radial-gradient(circle, rgba(243,116,32,.38), transparent 62%); pointer-events: none; }
+  #hero .logo { width: min(620px, 82vw); margin: 0 auto; }
+  #hero .hero-tag { font-size: clamp(20px, 2.6vw, 30px); color: var(--soft); margin-top: 22px; }
+  #hero .cta { margin-top: 40px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  #hero .cta .pill { font-size: 16px; padding: 14px 26px; }
+  #hero .by { margin-top: 64px; width: 120px; margin-left: auto; margin-right: auto; opacity: .9; }
+  .scroll-cue { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); font-size: 11px; color: var(--muted);
+                display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .scroll-cue::after { content: ""; width: 1px; height: 36px; background: linear-gradient(var(--muted), transparent); animation: cue 1.8s ease-in-out infinite; }
+  @keyframes cue { 0%,100% { transform: scaleY(.4); transform-origin: top; opacity: .4; } 50% { transform: scaleY(1); opacity: 1; } }
+  .float-star { position: absolute; width: 22px; top: 18%; right: 14%; animation: twinkle 4s ease-in-out infinite; }
+  @keyframes twinkle { 0%,100% { opacity: .55; transform: scale(.9) rotate(0); } 50% { opacity: 1; transform: scale(1.08) rotate(12deg); } }
+
+  /* ---------- HOOK ---------- */
+  .big-km { white-space: nowrap; font-size: clamp(54px, 9vw, 124px); font-weight: 700; letter-spacing: -.03em; line-height: 1; }
+  .question { font-size: clamp(26px, 3vw, 36px); font-weight: 700; margin-top: 36px; }
+  .gauge { position: relative; width: 100%; max-width: 320px; aspect-ratio: 1; margin: 0 auto; }
+  .gauge svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+  .gauge .track { fill: none; stroke: rgba(255,255,255,.08); }
+  .gauge .bar { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1.8s cubic-bezier(.2,.7,.2,1), stroke 1s ease; }
+  .gauge .val { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; white-space: nowrap; }
+  .gauge-label { text-align: center; color: var(--soft); font-size: 13px; margin-top: 16px; }
+  .halo { position: absolute; inset: -30%; z-index: -1; border-radius: 50%; background: radial-gradient(circle, rgba(243,116,32,.30), transparent 60%); }
+
+  /* ---------- PROBLEM ---------- */
+  #problem .head { font-size: clamp(40px, 6.4vw, 84px); }
+  #problem .big-star { position: absolute; right: 8%; bottom: 14%; width: clamp(90px, 12vw, 170px); filter: drop-shadow(0 0 60px rgba(243,116,32,.6)); }
+
+  /* ---------- CHALLENGE ---------- */
+  .systems { list-style: none; display: grid; gap: 22px; justify-content: center; }
+  .systems li { display: flex; align-items: center; gap: 18px; font-size: 15px; }
+  .systems .ring { width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--orange); box-shadow: 0 0 24px rgba(243,116,32,.35); }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .gauges { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(16px, 4vw, 56px); margin-top: 64px; }
+  .gauges .gauge { max-width: 190px; }
+  .steps { display: flex; gap: clamp(20px, 5vw, 64px); justify-content: center; flex-wrap: wrap; margin-top: 56px; font-size: 14px; }
+  .steps b { color: var(--orange); margin-right: 10px; }
+
+  /* ---------- NOVA ---------- */
+  .hints { display: grid; gap: 14px; margin-top: 36px; }
+  .hint { display: flex; align-items: center; gap: 18px; }
+  .hint .chip { min-width: 128px; text-align: center; font-size: 12px; font-weight: 600; padding: 13px 16px; border-radius: 999px;
+                background: var(--panel); border: 1px solid var(--line); }
+  .hint span:last-child { color: var(--soft); font-size: 17px; }
+
+  /* ---------- SCIENCE ---------- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-top: 64px; }
+  .stat .v { font-size: clamp(40px, 5.2vw, 68px); font-weight: 700; letter-spacing: -.02em; line-height: 1; white-space: nowrap; }
+  .stat .l { font-size: 12px; color: var(--soft); margin-top: 16px; line-height: 1.6; }
+  .source { margin-top: 56px; color: var(--muted); font-size: 15px; max-width: 60ch; }
+  .fact-card { margin-top: 48px; max-width: 460px; background: #ece4cf; color: #1b1b22; border-radius: 16px; padding: 24px 26px; position: relative;
+               box-shadow: 0 30px 80px -20px rgba(0,0,0,.6); transform: rotate(-1.2deg); }
+  .fact-card .stamp { position: absolute; top: 18px; right: 18px; border: 2px solid #3c8a4e; color: #3c8a4e; font-size: 12px; font-weight: 600; padding: 4px 9px; transform: rotate(4deg); }
+  .fact-card .n { font-size: 11px; color: #6b6b72; } .fact-card h3 { font-size: 21px; margin: 8px 0; }
+  .fact-card p { font-size: 15px; line-height: 1.5; } .fact-card .src { font-size: 10px; color: var(--orange); margin-top: 12px; letter-spacing: .14em; }
+
+  /* ---------- DEBRIEF ---------- */
+  .three-stars { display: flex; justify-content: center; gap: clamp(10px, 2vw, 22px); margin-bottom: 40px; }
+  .three-stars img { width: clamp(60px, 8vw, 104px); filter: drop-shadow(0 0 40px rgba(243,116,32,.55)); opacity: 0; transform: scale(.3) rotate(-40deg);
+                     transition: opacity .6s ease, transform .8s cubic-bezier(.3,1.6,.5,1); }
+  .in .three-stars img { opacity: 1; transform: none; }
+  .in .three-stars img:nth-child(2) { transition-delay: .25s; } .in .three-stars img:nth-child(3) { transition-delay: .5s; }
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 760px; margin: 56px auto 0; }
+  .metrics .v { font-size: clamp(44px, 5vw, 64px); font-weight: 700; }
+  .metrics .l { font-size: 12px; color: var(--soft); margin-top: 8px; }
+  .learned { margin-top: 48px; font-size: clamp(18px, 2vw, 22px); color: var(--soft); }
+  .learned q { color: var(--white); }
+
+  /* ---------- ROADMAP ---------- */
+  .big-count { font-size: clamp(96px, 14vw, 190px); font-weight: 700; line-height: .95; letter-spacing: -.04em; }
+  .next-list { margin-top: 36px; color: var(--gold); font-size: 13px; line-height: 2.1; }
+
+  /* ---------- GALLERY ---------- */
+  .gallery { display: flex; gap: 24px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 12px var(--pad) 36px; margin: 56px calc(var(--pad) * -1) 0;
+             scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+  .gallery figure { flex: 0 0 min(760px, 82vw); scroll-snap-align: center; }
+  .gallery figcaption { margin-top: 16px; font-size: 12px; color: var(--muted); }
+
+  /* ---------- DOWNLOAD ---------- */
+  #download .choose { font-size: 12px; color: var(--muted); margin: 48px 0 18px; }
+  .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 760px; margin: 0 auto; }
+  .btn { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 30px 20px 26px; border-radius: 22px;
+         border: 1px solid var(--line); background: rgba(30,31,47,.72); color: var(--white); cursor: pointer; font: inherit;
+         transition: transform .2s ease, border-color .2s ease, background .2s ease; backdrop-filter: blur(8px); }
   .btn:hover, .btn:focus-visible { transform: translateY(-3px); border-color: var(--orange); outline: none; }
   .btn svg { width: 40px; height: 40px; }
   .btn .name { font-size: 24px; font-weight: 700; }
   .btn .meta { font-size: 11px; color: var(--muted); }
   .btn.recommended { border-color: var(--orange); background: linear-gradient(180deg, rgba(243,116,32,.16), rgba(30,31,47,.72)); }
+  .btn.selected { border-color: var(--white); background: rgba(255,255,255,.07); }
   .tag { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: var(--orange); color: var(--deep);
          font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; display: none; }
   .btn.recommended .tag { display: block; }
-
-  .panel { display: none; margin-top: 36px; text-align: left; background: rgba(30,31,47,.72); border: 1px solid var(--line);
+  .panel { display: none; max-width: 760px; margin: 28px auto 0; text-align: left; background: rgba(30,31,47,.72); border: 1px solid var(--line);
            border-radius: 22px; padding: 26px 28px; }
   .panel.show { display: block; animation: rise .4s ease; }
   @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-  .panel h2 { font-size: 22px; margin-bottom: 6px; }
-  .panel p { color: var(--soft); font-size: 15px; line-height: 1.55; }
-  .panel ol { margin: 16px 0 0 20px; color: var(--soft); font-size: 15px; line-height: 1.7; }
+  .panel h3 { font-size: 22px; }
+  .panel ol { margin: 8px 0 0 20px; color: var(--soft); font-size: 15px; line-height: 1.7; }
   .panel b { color: var(--white); }
   .panel code { font-family: "JetBrains Mono", monospace; font-size: 13px; background: var(--deep); padding: 2px 6px; border-radius: 6px; color: var(--gold); }
   .panel a { color: var(--orange); }
-
-  .btn.selected { border-color: var(--white); background: rgba(255,255,255,.07); }
   .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
   .step-k { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
   .steps-title { margin-top: 22px; }
-  .panel ol { margin-top: 8px; }
-  .dl { display: inline-flex; align-items: center; gap: 10px; font: inherit; font-size: 17px; font-weight: 700;
-        padding: 14px 26px; border-radius: 999px; border: 0; background: var(--orange); color: var(--deep); cursor: pointer;
-        transition: transform .15s ease, filter .15s ease; }
+  .dl { display: inline-flex; align-items: center; gap: 10px; font: inherit; font-size: 17px; font-weight: 700; padding: 14px 26px; border-radius: 999px;
+        border: 0; background: var(--orange); color: var(--deep); cursor: pointer; transition: transform .15s ease, filter .15s ease; }
   .dl:hover { transform: translateY(-2px); filter: brightness(1.08); }
   .dl svg { width: 20px; height: 20px; }
   .dl.done { background: var(--panel); color: var(--white); box-shadow: inset 0 0 0 1px var(--line); }
-  .status { min-height: 0; margin-top: 0; font-size: 14px; color: var(--gold); }
+  .status { font-size: 14px; color: var(--gold); }
   .status:not(:empty) { margin-top: 14px; }
-
-  /* phone view */
-  .phone { display: none; }
+  .phone { display: none; max-width: 520px; margin: 40px auto 0; }
   body.is-phone .phone { display: block; }
   body.is-phone .desktop-only { display: none; }
   .phone .card { background: rgba(30,31,47,.72); border: 1px solid var(--line); border-radius: 22px; padding: 26px 22px; }
@@ -86,123 +202,358 @@
   .link-alt { margin-top: 18px; font-size: 13px; color: var(--muted); }
   .link-alt a { color: var(--muted); }
 
-  footer { position: relative; z-index: 1; margin-top: 48px; font-size: 11px; color: var(--muted); text-align: center; line-height: 2; }
-  @media (max-width: 560px) { .buttons { grid-template-columns: 1fr; } body { padding-top: 36px; } }
+  /* ---------- FOOTER ---------- */
+  footer { position: relative; z-index: 1; padding: 100px var(--pad) 60px; text-align: center; border-top: 1px solid rgba(255,255,255,.06); }
+  footer .logo { width: 220px; margin: 0 auto; }
+  footer .tagline { color: var(--soft); margin-top: 14px; font-size: 18px; }
+  footer .team { margin-top: 40px; font-size: 12px; line-height: 2.2; color: var(--white); }
+  footer .stratix { width: 120px; margin: 44px auto 0; }
+  footer .small { margin-top: 24px; font-size: 11px; color: var(--muted); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 900px) {
+    .split, .split.wide-right, .split.wide-left { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .gauges { grid-template-columns: 1fr 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
+    section { min-height: auto; padding: 100px var(--pad); }
+    #hero { min-height: 100vh; }
+    #problem .big-star { position: relative; right: auto; bottom: auto; margin-top: 48px; }
+    .order-first-mobile { order: -1; }
+  }
+  @media (max-width: 560px) { .buttons { grid-template-columns: 1fr; } .metrics { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .r, .three-stars img { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .float-star, .scroll-cue::after { animation: none; }
+  }
 </style>
 </head>
 <body>
 <canvas class="stars" id="stars" aria-hidden="true"></canvas>
+<div class="bg-glow" aria-hidden="true"></div>
+
+<nav id="nav">
+  <a href="#hero" aria-label="exolife home"><img class="nav-logo" src="exolife.svg" alt="exolife"></a>
+  <a class="pill" href="#download">Download</a>
+</nav>
 
 <main>
-  <div class="kicker mono">NASA Space Apps Challenge 2026</div>
-  <img class="logo" src="exolife.svg" alt="exolife">
-  <h1>Learn to live on the Moon.</h1>
-
-  <!-- LAPTOP / DESKTOP VIEW -->
-  <section class="desktop-only">
-    <div class="choose mono">Choose your computer</div>
-    <div class="buttons">
-      <button class="btn" id="btn-win" data-os="win" type="button">
-        <span class="tag mono">Your computer</span>
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5 10.5 4.4v7.1H3V5.5Zm0 13 7.5 1.1v-7H3v5.9Zm8.4 1.2L21 21v-8.4h-9.6v7.1Zm0-15.4v7.2H21V3l-9.6 1.3Z"/></svg>
-        <span class="name">Windows</span>
-        <span class="meta mono">Windows 10 / 11</span>
-      </button>
-      <button class="btn" id="btn-mac" data-os="mac" type="button">
-        <span class="tag mono">Your computer</span>
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.8 1.3 10.3.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.2ZM13.9 4.9c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5Z"/></svg>
-        <span class="name">Mac</span>
-        <span class="meta mono">macOS</span>
-      </button>
+  <!-- 1. HERO -->
+  <section id="hero">
+    <div class="glow" aria-hidden="true"></div>
+    <img class="float-star" src="icon-star.svg" alt="" aria-hidden="true">
+    <div class="kicker mono r">NASA Space Apps Challenge 2026</div>
+    <img class="logo r d1" src="exolife.svg" alt="exolife">
+    <p class="hero-tag r d2">Learn to live on the Moon.</p>
+    <div class="cta r d3">
+      <a class="pill" href="#download">Download free</a>
+      <a class="pill ghost" href="#hook">See how it works</a>
     </div>
+    <img class="by r d4" src="stratix.svg" alt="Team Stratix">
+    <div class="scroll-cue mono">Scroll</div>
+  </section>
 
-    <div class="panel" id="panel-win">
-      <div class="panel-head">
-        <div>
-          <div class="mono step-k">Windows 10 / 11</div>
-          <h2>exolife for Windows</h2>
-        </div>
-        <button class="dl" type="button" data-dl="win">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14"/></svg>
-          <span>Download</span>
-        </button>
+  <!-- 2. HOOK -->
+  <section id="hook">
+    <div class="wrap split wide-left">
+      <div>
+        <div class="kicker mono r">Day 01 · South Pole Outpost</div>
+        <div class="big-km r d1"><span data-count="384400" data-format="km">384,400</span> km</div>
+        <p class="sub r d2">from home. And the air just dropped to <b class="gold">43%</b>.</p>
+        <p class="question r d3">What do you do?</p>
       </div>
-      <p class="status" id="status-win" aria-live="polite"></p>
-      <div class="mono step-k steps-title">After downloading</div>
-      <ol>
-        <li>Open your <b>Downloads</b> folder and <b>right-click the zip → Extract All</b>.</li>
-        <li>Open the extracted folder and double-click <b>exolife.exe</b>.</li>
-        <li>If Windows shows a blue <b>“Windows protected your PC”</b> box, click <b>More info → Run anyway</b>. That's normal for a brand-new hackathon app.</li>
-      </ol>
-    </div>
-
-    <div class="panel" id="panel-mac">
-      <div class="panel-head">
-        <div>
-          <div class="mono step-k">macOS</div>
-          <h2>exolife for Mac</h2>
+      <div class="r d2">
+        <div class="gauge" data-gauge="43" data-color="#eed591" style="isolation:isolate">
+          <div class="halo"></div>
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="54" stroke-width="5"/><circle class="bar" cx="60" cy="60" r="54" stroke-width="5"/></svg>
+          <div class="val" style="font-size:clamp(44px,5vw,64px)"><span data-count="43">43</span>%</div>
         </div>
-        <button class="dl" type="button" data-dl="mac">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14"/></svg>
-          <span>Download</span>
-        </button>
+        <div class="gauge-label mono">Air</div>
       </div>
-      <p class="status" id="status-mac" aria-live="polite"></p>
-      <div class="mono step-k steps-title">After downloading</div>
-      <ol>
-        <li>Open your <b>Downloads</b> folder and double-click the zip to unzip it.</li>
-        <li>Drag <b>exolife</b> into <b>Applications</b> (optional), then <b>right-click it → Open → Open</b>.</li>
-        <li>If macOS says it can't be opened, go to <b>System Settings → Privacy &amp; Security</b>, scroll down and click <b>Open Anyway</b>.</li>
-        <li>If it says the app is <b>“damaged”</b>, open Terminal and run <code>xattr -cr /Applications/exolife.app</code>, then open it again.</li>
-      </ol>
     </div>
   </section>
 
-  <!-- PHONE VIEW -->
-  <section class="phone">
-    <div class="card">
-      <p><b>exolife runs on laptops.</b><br>Open this link on your Windows or Mac computer to download it:</p>
-      <div class="url" id="page-url"></div>
-      <div class="row">
-        <button class="small-btn primary" id="share" type="button">Send to myself</button>
-        <button class="small-btn" id="copy" type="button">Copy link</button>
+  <!-- 3. PROBLEM -->
+  <section id="problem">
+    <div class="wrap">
+      <div class="kicker mono r">The problem</div>
+      <h2 class="head r d1">Kids read about space.<br><span class="orange">Astronauts train for it.</span></h2>
+      <p class="sub r d2">Facts fade. Practice sticks.</p>
+      <img class="big-star r d3" src="icon-star.svg" alt="" aria-hidden="true">
+    </div>
+  </section>
+
+  <!-- 4. CHALLENGE -->
+  <section id="challenge">
+    <div class="wrap split wide-left">
+      <div>
+        <div class="kicker mono r">The challenge</div>
+        <h2 class="head r d1">Build a Junior Astronaut Mission Trainer.</h2>
+        <p class="sub r d2">Students run a Moon outpost and keep their crew alive.</p>
+      </div>
+      <ul class="systems mono">
+        <li class="r d2"><span class="ring"></span>Air</li>
+        <li class="r d3"><span class="ring"></span>Water</li>
+        <li class="r d4"><span class="ring"></span>Food</li>
+        <li class="r d5"><span class="ring"></span>Power</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 5. OUR ANSWER -->
+  <section id="answer">
+    <div class="wrap split wide-right">
+      <div>
+        <div class="kicker mono r">Our answer</div>
+        <img class="r d1" src="exolife.svg" alt="exolife" style="width:min(420px,80vw)">
+        <p class="sub r d2">A mission trainer for junior astronauts.</p>
+        <p class="mono r d3" style="font-size:13px;margin-top:32px">Play · Fix · Learn</p>
+      </div>
+      <div class="shot-box r d2">
+        <div class="shot-glow"></div>
+        <div class="shot"><img src="img/title.jpg" alt="exolife title screen with the solar system" loading="lazy"></div>
       </div>
     </div>
-    <div class="link-alt">On a laptop already? <a href="#" id="force-desktop">Show downloads</a></div>
+  </section>
+
+  <!-- 6. HOW IT WORKS -->
+  <section id="how">
+    <div class="wrap center">
+      <div class="kicker mono r">How it works</div>
+      <h2 class="head r d1">Keep four systems alive.</h2>
+      <div class="gauges">
+        <div class="r d1"><div class="gauge" data-gauge="86" data-color="#74c27a"><svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="54" stroke-width="6"/><circle class="bar" cx="60" cy="60" r="54" stroke-width="6"/></svg><div class="val" style="font-size:clamp(26px,3vw,36px)"><span data-count="86">86</span>%</div></div><div class="gauge-label mono">Air</div></div>
+        <div class="r d2"><div class="gauge" data-gauge="77" data-color="#74c27a"><svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="54" stroke-width="6"/><circle class="bar" cx="60" cy="60" r="54" stroke-width="6"/></svg><div class="val" style="font-size:clamp(26px,3vw,36px)"><span data-count="77">77</span>%</div></div><div class="gauge-label mono">Water</div></div>
+        <div class="r d3"><div class="gauge" data-gauge="73" data-color="#74c27a"><svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="54" stroke-width="6"/><circle class="bar" cx="60" cy="60" r="54" stroke-width="6"/></svg><div class="val" style="font-size:clamp(26px,3vw,36px)"><span data-count="73">73</span>%</div></div><div class="gauge-label mono">Food</div></div>
+        <div class="r d4"><div class="gauge" data-gauge="80" data-color="#74c27a"><svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="54" stroke-width="6"/><circle class="bar" cx="60" cy="60" r="54" stroke-width="6"/></svg><div class="val" style="font-size:clamp(26px,3vw,36px)"><span data-count="80">80</span>%</div></div><div class="gauge-label mono">Power</div></div>
+      </div>
+      <div class="steps mono r d5"><span><b>01</b>Check</span><span><b>02</b>Fix</span><span><b>03</b>Learn</span></div>
+    </div>
+  </section>
+
+  <!-- 7. NOVA -->
+  <section id="nova">
+    <div class="wrap split wide-left">
+      <div class="shot-box r">
+        <div class="shot-glow"></div>
+        <div class="shot"><img src="img/cabin.jpg" alt="Engineer Sam yawning in the stuffy cabin while Nova guides the mission" loading="lazy"></div>
+      </div>
+      <div class="order-first-mobile">
+        <div class="kicker mono r">Meet Nova</div>
+        <h2 class="head r d1">Stuck?<br>Nova helps.</h2>
+        <div class="hints">
+          <div class="hint r d2"><span class="chip mono">Nudge</span><span>a small hint</span></div>
+          <div class="hint r d3"><span class="chip mono">Clue</span><span>a bigger hint</span></div>
+          <div class="hint r d4"><span class="chip mono">Show me</span><span>the full answer</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. REAL SCIENCE -->
+  <section id="science">
+    <div class="wrap">
+      <div class="kicker mono r">Real science</div>
+      <h2 class="head r d1">Every fact is real.</h2>
+      <div class="stats">
+        <div class="stat r d1"><div class="v orange">1/6 G</div><div class="l mono">Moon gravity<br>vs Earth</div></div>
+        <div class="stat r d2"><div class="v"><span data-count="127">127</span>°C</div><div class="l mono">In full<br>sunlight</div></div>
+        <div class="stat r d3"><div class="v">−<span data-count="173">173</span>°C</div><div class="l mono">In<br>darkness</div></div>
+        <div class="stat r d4"><div class="v gold">1.3 s</div><div class="l mono">Signal delay<br>to Earth</div></div>
+      </div>
+      <div class="fact-card r d5">
+        <span class="stamp mono">Real</span>
+        <div class="n mono">Fact N° 009</div>
+        <h3>Space menu</h3>
+        <p>The space station menu has more than 200 foods and drinks. Tortillas replace bread because crumbs float away.</p>
+        <div class="src mono">Source · Canadian Space Agency, Eating in Space</div>
+      </div>
+      <p class="source r d6">Every fact card in the game is labelled REAL and cites its source: NASA, the Canadian Space Agency.</p>
+    </div>
+  </section>
+
+  <!-- 9. DEBRIEF -->
+  <section id="debrief">
+    <div class="wrap center">
+      <div class="kicker mono r">Mission debrief</div>
+      <div class="three-stars"><img src="icon-star.svg" alt=""><img src="icon-star.svg" alt=""><img src="icon-star.svg" alt=""></div>
+      <h2 class="head r d1">Learning you can measure.</h2>
+      <div class="metrics">
+        <div class="r d2"><div class="v orange">1:37</div><div class="l mono">Time</div></div>
+        <div class="r d3"><div class="v">0</div><div class="l mono">Wrong actions</div></div>
+        <div class="r d4"><div class="v">0</div><div class="l mono">Hints used</div></div>
+      </div>
+      <p class="learned r d5"><q>Air in a base is cleaned and reused, and filters need regular care.</q></p>
+    </div>
+  </section>
+
+  <!-- 10. ROADMAP -->
+  <section id="next">
+    <div class="wrap split wide-right">
+      <div>
+        <div class="kicker mono r">What's next</div>
+        <div class="big-count r d1"><span class="orange"><span data-count="2">2</span></span> / <span data-count="18">18</span></div>
+        <p class="sub r d2">missions playable today.<br>The rest are already designed.</p>
+        <p class="next-list mono r d3">Mars · Proxima Centauri<br>Sandbox · Challenge · Survival</p>
+      </div>
+      <div class="shot-box r d2">
+        <div class="shot-glow"></div>
+        <div class="shot"><img src="img/map.jpg" alt="Solar system mission map with playable and coming-soon missions" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. GALLERY -->
+  <section id="gallery" style="min-height:auto">
+    <div class="wrap center">
+      <div class="kicker mono r">In action</div>
+      <h2 class="head r d1">Let’s go to the Moon.</h2>
+      <div class="gallery r d2">
+        <figure><div class="shot"><img src="img/bike.jpg" alt="Mission 01, First Morning on the Moon" loading="lazy"></div><figcaption class="mono">Mission 01 · First Morning on the Moon</figcaption></figure>
+        <figure><div class="shot"><img src="img/moon.jpg" alt="The Moon panel with real facts" loading="lazy"></div><figcaption class="mono">The Moon · 1/6 G · South Pole Outpost</figcaption></figure>
+        <figure><div class="shot"><img src="img/cabin.jpg" alt="Mission 02, The Stuffy Cabin" loading="lazy"></div><figcaption class="mono">Mission 02 · The Stuffy Cabin</figcaption></figure>
+        <figure><div class="shot"><img src="img/done.jpg" alt="Mission complete debrief with three stars" loading="lazy"></div><figcaption class="mono">Debrief · Mission complete</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. DOWNLOAD -->
+  <section id="download">
+    <div class="wrap center">
+      <div class="kicker mono r">Take it home</div>
+      <h2 class="head r d1">Play exolife on your laptop.</h2>
+      <p class="sub r d2">Free for Windows and Mac.</p>
+
+      <div class="desktop-only r d3">
+        <div class="choose mono">Choose your computer</div>
+        <div class="buttons">
+          <button class="btn" data-os="win" type="button">
+            <span class="tag mono">Your computer</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5 10.5 4.4v7.1H3V5.5Zm0 13 7.5 1.1v-7H3v5.9Zm8.4 1.2L21 21v-8.4h-9.6v7.1Zm0-15.4v7.2H21V3l-9.6 1.3Z"/></svg>
+            <span class="name">Windows</span><span class="meta mono">Windows 10 / 11</span>
+          </button>
+          <button class="btn" data-os="mac" type="button">
+            <span class="tag mono">Your computer</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.8 1.3 10.3.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.2ZM13.9 4.9c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5Z"/></svg>
+            <span class="name">Mac</span><span class="meta mono">macOS</span>
+          </button>
+        </div>
+
+        <div class="panel" id="panel-win">
+          <div class="panel-head">
+            <div><div class="mono step-k">Windows 10 / 11</div><h3>exolife for Windows</h3></div>
+            <button class="dl" type="button" data-dl="win"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14"/></svg><span>Download</span></button>
+          </div>
+          <p class="status" id="status-win" aria-live="polite"></p>
+          <div class="mono step-k steps-title">After downloading</div>
+          <ol>
+            <li>Open your <b>Downloads</b> folder and <b>right-click the zip → Extract All</b>.</li>
+            <li>Open the extracted folder and double-click <b>exolife.exe</b>.</li>
+            <li>If Windows shows a blue <b>“Windows protected your PC”</b> box, click <b>More info → Run anyway</b>. That's normal for a brand-new hackathon app.</li>
+          </ol>
+        </div>
+
+        <div class="panel" id="panel-mac">
+          <div class="panel-head">
+            <div><div class="mono step-k">macOS</div><h3>exolife for Mac</h3></div>
+            <button class="dl" type="button" data-dl="mac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14"/></svg><span>Download</span></button>
+          </div>
+          <p class="status" id="status-mac" aria-live="polite"></p>
+          <div class="mono step-k steps-title">After downloading</div>
+          <ol>
+            <li>Open your <b>Downloads</b> folder and double-click the zip to unzip it.</li>
+            <li>Drag <b>exolife</b> into <b>Applications</b> (optional), then <b>right-click it → Open → Open</b>.</li>
+            <li>If macOS says it can't be opened, go to <b>System Settings → Privacy &amp; Security</b>, scroll down and click <b>Open Anyway</b>.</li>
+            <li>If it says the app is <b>“damaged”</b>, open Terminal and run <code>xattr -cr /Applications/exolife.app</code>, then open it again.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="card">
+          <p><b>exolife runs on laptops.</b><br>Open this link on your Windows or Mac computer to download it:</p>
+          <div class="url" id="page-url"></div>
+          <div class="row">
+            <button class="small-btn primary" id="share" type="button">Send to myself</button>
+            <button class="small-btn" id="copy" type="button">Copy link</button>
+          </div>
+        </div>
+        <div class="link-alt">On a laptop already? <a href="#download" id="force-desktop">Show downloads</a></div>
+      </div>
+    </div>
   </section>
 </main>
 
-<footer class="mono">Team Stratix · NASA Space Apps 2026<br>Free · Made for junior astronauts</footer>
+<footer>
+  <img class="logo" src="exolife.svg" alt="exolife">
+  <p class="tagline">Learn to live on the Moon.</p>
+  <p class="team mono">Alhasan Ali · Hani Alshakhoori · Ahmed Alaali<br>Ali Hussain Alaali · Sayed Kinder</p>
+  <img class="stratix" src="stratix.svg" alt="Team Stratix">
+  <p class="small mono">NASA Space Apps Challenge 2026</p>
+</footer>
 
 <script>
-  // ============ EDIT THESE TWO LINKS ============
+  // ============ YOUR DOWNLOAD LINKS ============
   const DOWNLOADS = {
     win: "https://github.com/tjl5/exolife/releases/latest/download/exolife-windows.zip",
     mac: "https://github.com/tjl5/exolife/releases/latest/download/exolife-mac.zip",
   };
-  // ==============================================
+  // =============================================
 
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---- device detection ----
   const ua = navigator.userAgent || "";
-  const isPhone = /iPhone|iPod|Android.*Mobile|Windows Phone/i.test(ua) ||
-                  (/Android/i.test(ua)) ||
-                  (/iPad/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)); // iPad pretends to be a Mac
-  const isMac = /Macintosh|Mac OS X/i.test(ua) && !isPhone;
-  const isWin = /Windows/i.test(ua) && !isPhone;
-
+  const isPhone = /iPhone|iPod|Android|Windows Phone/i.test(ua) || /iPad/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   if (isPhone) document.body.classList.add("is-phone");
-  if (isMac) document.getElementById("btn-mac").classList.add("recommended");
-  if (isWin) document.getElementById("btn-win").classList.add("recommended");
+  if (!isPhone && /Macintosh|Mac OS X/i.test(ua)) document.querySelector('.btn[data-os="mac"]').classList.add("recommended");
+  if (!isPhone && /Windows/i.test(ua)) document.querySelector('.btn[data-os="win"]').classList.add("recommended");
 
-  // 1) Picking Windows or Mac only shows that panel. Nothing downloads yet.
+  // ---- nav background after scrolling past the hero ----
+  const nav = document.getElementById("nav");
+  const onScroll = () => nav.classList.toggle("scrolled", scrollY > innerHeight * 0.6);
+  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+  // ---- gauges: set up circles ----
+  const C = 2 * Math.PI * 54;
+  document.querySelectorAll(".gauge").forEach(g => {
+    const bar = g.querySelector(".bar");
+    bar.style.stroke = g.dataset.color;
+    bar.style.strokeDasharray = C;
+    bar.style.strokeDashoffset = C;
+  });
+  function fillGauge(g) { g.querySelector(".bar").style.strokeDashoffset = C * (1 - g.dataset.gauge / 100); }
+
+  // ---- number count-up ----
+  function countUp(el) {
+    const end = +el.dataset.count, fmt = el.dataset.format, dur = 1600, t0 = performance.now();
+    const show = v => el.textContent = fmt === "km" ? Math.round(v).toLocaleString("en-US") : Math.round(v);
+    if (reduce) return show(end);
+    (function tick(t) { const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3); show(end * e); if (p < 1) requestAnimationFrame(tick); })(t0);
+  }
+
+  // ---- reveal sections as they scroll in ----
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      const s = en.target;
+      s.classList.add("in");
+      s.querySelectorAll(".gauge").forEach(fillGauge);
+      s.querySelectorAll("[data-count]").forEach(countUp);
+      io.unobserve(s);
+    });
+  }, { threshold: 0.22 });
+  document.querySelectorAll("section").forEach(s => io.observe(s));
+  document.getElementById("hero").classList.add("in");
+
+  // ---- downloads: pick OS → panel; Download button → hidden frame (stays on page) ----
   function choose(os) {
     document.querySelectorAll(".btn[data-os]").forEach(b => b.classList.toggle("selected", b.dataset.os === os));
     document.querySelectorAll(".panel").forEach(p => p.classList.remove("show"));
     const panel = document.getElementById("panel-" + os);
     panel.classList.add("show");
-    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    panel.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
   }
-
-  // 2) The Download button starts the file in a hidden frame, so the visitor never leaves this page.
   let frame;
   function download(os, btn) {
     if (!frame) { frame = document.createElement("iframe"); frame.style.display = "none"; frame.title = "download"; document.body.appendChild(frame); }
@@ -210,43 +561,49 @@
     btn.classList.add("done");
     btn.querySelector("span").textContent = "Downloading…";
     setTimeout(() => { btn.querySelector("span").textContent = "Download again"; }, 4000);
-    const st = document.getElementById("status-" + os);
-    st.innerHTML = 'Check your Downloads folder, then follow the steps below. Nothing happened? <a href="' + DOWNLOADS[os] + '" target="_blank" rel="noopener">Use this direct link</a>.';
+    document.getElementById("status-" + os).innerHTML =
+      'Check your Downloads folder, then follow the steps below. Nothing happened? <a href="' + DOWNLOADS[os] + '" target="_blank" rel="noopener">Use this direct link</a>.';
   }
-
   document.querySelectorAll(".btn[data-os]").forEach(b => b.addEventListener("click", () => choose(b.dataset.os)));
   document.querySelectorAll("[data-dl]").forEach(b => b.addEventListener("click", () => download(b.dataset.dl, b)));
 
-  // Phone helpers
+  // ---- phone helpers ----
   const url = location.href.split("#")[0];
   document.getElementById("page-url").textContent = url.replace(/^https?:\/\//, "");
   document.getElementById("share").addEventListener("click", async () => {
     if (navigator.share) { try { await navigator.share({ title: "exolife", text: "Download exolife on my laptop", url }); } catch (e) {} }
-    else { location.href = "mailto:?subject=" + encodeURIComponent("exolife download") + "&body=" + encodeURIComponent(url); }
+    else location.href = "mailto:?subject=" + encodeURIComponent("exolife download") + "&body=" + encodeURIComponent(url);
   });
   document.getElementById("copy").addEventListener("click", async e => {
     try { await navigator.clipboard.writeText(url); e.target.textContent = "Copied ✓"; } catch (err) { e.target.textContent = "Copy failed"; }
   });
-  document.getElementById("force-desktop").addEventListener("click", e => { e.preventDefault(); document.body.classList.remove("is-phone"); });
+  document.getElementById("force-desktop").addEventListener("click", () => document.body.classList.remove("is-phone"));
 
-  // Starfield
-  const c = document.getElementById("stars"), x = c.getContext("2d");
+  // ---- twinkling starfield ----
+  const cv = document.getElementById("stars"), cx = cv.getContext("2d");
   let stars = [];
   function resize() {
-    const d = window.devicePixelRatio || 1;
-    c.width = innerWidth * d; c.height = innerHeight * d; c.style.width = innerWidth + "px"; c.style.height = innerHeight + "px";
-    x.setTransform(d, 0, 0, d, 0, 0);
-    stars = Array.from({ length: Math.round(innerWidth * innerHeight / 6000) }, () => ({
-      x: Math.random() * innerWidth, y: Math.random() * innerHeight, r: Math.random() * 1.2 + .3, p: Math.random() * 6.28, s: Math.random() * .02 + .005,
+    const d = devicePixelRatio || 1;
+    cv.width = innerWidth * d; cv.height = innerHeight * d; cv.style.width = innerWidth + "px"; cv.style.height = innerHeight + "px";
+    cx.setTransform(d, 0, 0, d, 0, 0);
+    stars = Array.from({ length: Math.round(innerWidth * innerHeight / 5500) }, () => ({
+      x: Math.random() * innerWidth, y: Math.random() * innerHeight * 1.5, r: Math.random() * 1.2 + .3, p: Math.random() * 6.28, s: Math.random() * .02 + .005, z: Math.random() * .25 + .05,
     }));
   }
   function draw() {
-    x.clearRect(0, 0, innerWidth, innerHeight);
-    for (const s of stars) { s.p += s.s; x.globalAlpha = .25 + .45 * (Math.sin(s.p) + 1) / 2; x.beginPath(); x.arc(s.x, s.y, s.r, 0, 6.28); x.fillStyle = "#fff"; x.fill(); }
-    if (animate) requestAnimationFrame(draw);
+    cx.clearRect(0, 0, innerWidth, innerHeight);
+    const off = scrollY;
+    for (const s of stars) {
+      s.p += s.s;
+      const y = ((s.y - off * s.z) % (innerHeight * 1.5) + innerHeight * 1.5) % (innerHeight * 1.5);
+      if (y > innerHeight) continue;
+      cx.globalAlpha = .25 + .45 * (Math.sin(s.p) + 1) / 2;
+      cx.beginPath(); cx.arc(s.x, y, s.r, 0, 6.28); cx.fillStyle = "#fff"; cx.fill();
+    }
+    if (!reduce) requestAnimationFrame(draw);
   }
-  const animate = !matchMedia("(prefers-reduced-motion: reduce)").matches;
-  addEventListener("resize", () => { resize(); if (!animate) draw(); }); resize(); draw();
+  addEventListener("resize", () => { resize(); if (reduce) draw(); }); resize(); draw();
+  if (reduce) addEventListener("scroll", draw, { passive: true });
 </script>
 </body>
 </html>
